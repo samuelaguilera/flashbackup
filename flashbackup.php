@@ -295,7 +295,7 @@ class FlashBackup {
 			<option value="<?php echo esc_attr( WEEK_IN_SECONDS ); ?>" <?php selected( $compression_option, WEEK_IN_SECONDS ); ?>>Weekly</option>
 			<option value="<?php echo esc_attr( MONTH_IN_SECONDS ); ?>" <?php selected( $compression_option, MONTH_IN_SECONDS ); ?>>Monthly</option>
 		</select>
-		<p class="description">Delete old backup files older than this time. Default: Weekly</p>	
+		<p class="description">Frequency for old backup files deletion. Default: Weekly</p>	
 		<?php
 	}
 
