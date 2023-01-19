@@ -250,8 +250,8 @@ class FlashBackup_Updater {
 	public function change_source_dir( $source, $remote_source, $upgrader, $hook_extra ) {
 		global $wp_filesystem;
 
-		// Return if we don't have access to the filesystem.
-		if ( ! is_object( $wp_filesystem ) ) {
+		// Return if we don't have access to the filesystem or $hook_extra['plugin'] is not defined.
+		if ( ! is_object( $wp_filesystem ) || ! isset( $hook_extra['plugin'] ) ) {
 			return $source;
 		}
 

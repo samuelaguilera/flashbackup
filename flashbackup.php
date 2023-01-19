@@ -3,7 +3,7 @@
  * Plugin Name: FlashBackup
  * Description: Cron scheduled database backup using mysqldump for faster backup operation.
  * Author: Samuel Aguilera
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author URI: http://www.samuelaguilera.com
  * License: GPL3
  * Update URI: https://flashbackup.samuelaguilera.com
