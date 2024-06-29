@@ -3,7 +3,7 @@
  * Manage download of plugin updates from GitHub.
  *
  * @package FlashBackup
- * @version 1.0
+ * @version 1.0.1
  */
 
 /*
@@ -141,7 +141,7 @@ class FlashBackup_Plugin_Updater {
 	public function get_update_details( $result, $action, $args ) {
 
 		// Run only for the right action and our plugin slug.
-		if ( $args->slug !== $this->slug || 'plugin_information' !== $action ) {
+		if ( 'plugin_information' !== $action || $args->slug !== $this->slug ) {
 			return $result;
 		}
 
