@@ -3,7 +3,7 @@
  * Plugin Name: FlashBackup
  * Description: Cron scheduled database backup using mysqldump for faster backup operation.
  * Author: Samuel Aguilera
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author URI: http://www.samuelaguilera.com
  * License: GPL3
  * Update URI: https://flashbackup.samuelaguilera.com
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Updates handler.
 require_once plugin_dir_path( __FILE__ ) . 'class-flashbackup-updater.php';
-$flashbackup_updater = new FlashBackup_Updater( __FILE__ );
+$flashbackup_updater = class_exists( 'FlashBackup_Plugin_Updater' ) ? new FlashBackup_Plugin_Updater( __FILE__ ) : false;
 
 /**
  * Main plugin class.

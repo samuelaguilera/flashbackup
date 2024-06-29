@@ -3,6 +3,7 @@
  * Manage download of plugin updates from GitHub.
  *
  * @package FlashBackup
+ * @version 1.0
  */
 
 /*
@@ -25,8 +26,9 @@ defined( 'ABSPATH' ) || die();
 
 /**
  * Update WordPress plugin from GitHub Repository.
+ * Change the class name to your own unique class name.
  */
-class FlashBackup_Updater {
+class FlashBackup_Plugin_Updater {
 
 	/**
 	 * Defines the GitHub respository name.
@@ -41,6 +43,18 @@ class FlashBackup_Updater {
 	 * @var $github_username GitHub username.
 	 */
 	private $github_username = 'samuelaguilera';
+
+	/**
+	 * Defines a hostname for updates. This is to prevent update conflicts with plugins hosted at WordPress.org using the same slug, it doesn't accept folders or prefixes, just the hostname.
+	 * The same hostname must be used for the Update URI header in the plugin main file. For more details see https://make.wordpress.org/core/2021/06/29/introducing-update-uri-plugin-header-in-wordpress-5-8/ .
+	 *
+	 * @var $update_hostname A hostname used as identifier for the function using the update_plugins_$hostname hook. It can be a dummy hostname, it doesn't need to resolve.
+	 */
+	private $update_hostname = 'flashbackup.samuelaguilera.com';
+
+	/**
+	 * NO MORE EDITING REQUIRED AFTER THIS LINE.
+	 */
 
 	/**
 	 * Main plugin file.
@@ -75,8 +89,8 @@ class FlashBackup_Updater {
 		$this->slug     = dirname( plugin_basename( $this->file ) );
 		// Display update information when View version details link is clicked.
 		add_filter( 'plugins_api', array( $this, 'get_update_details' ), 20, 3 );
-		// Using this filter for the update check to prevent conflicts with w.org hosted plugins. https://make.wordpress.org/core/2021/06/29/introducing-update-uri-plugin-header-in-wordpress-5-8/ .
-		add_filter( 'update_plugins_flashbackup.samuelaguilera.com', array( $this, 'check_plugin_update' ), 10, 4 );
+		// Using this filter for the update check to prevent conflicts with w.org hosted plugins.
+		add_filter( "update_plugins_$this->update_hostname", array( $this, 'check_plugin_update' ), 10, 4 );
 		// Ensure the plugin folder name remains the same when update is done from Dashboard > Updates.
 		add_filter( 'upgrader_source_selection', array( $this, 'change_source_dir' ), 10, 4 );
 	}
@@ -88,20 +102,14 @@ class FlashBackup_Updater {
 		$github_plugin_data = array();
 
 		// Cached request to prevent GitHub rate limit.
-		$github_plugin_data = get_transient( $this->github_repository . '_update_check' );
+		$github_plugin_data = get_transient( $this->github_username . '-' . $this->github_repository . '_update_check' );
 
 		$request_uri = esc_url_raw( "https://api.github.com/repos/$this->github_username/$this->github_repository/releases" );
-
-		$args = array(
-			'method'    => 'GET',
-			'timeout'   => 5,
-			'sslverify' => true,
-		);
 
 		// Fetch plugin data from GitHub if transient is no longer valid.
 		if ( false === $github_plugin_data ) {
 
-			$github_plugin_data = wp_remote_get( $request_uri, $args );
+			$github_plugin_data = wp_remote_get( $request_uri ); // Using default WP_Http::request() args.
 
 			if ( ! is_wp_error( $github_plugin_data ) ) {
 				// Get body response.
@@ -112,7 +120,7 @@ class FlashBackup_Updater {
 					$github_plugin_data = 'empty_response';
 				}
 			}
-			set_transient( $this->github_repository . '_update_check', $github_plugin_data, HOUR_IN_SECONDS );
+			set_transient( $this->github_username . '-' . $this->github_repository . '_update_check', $github_plugin_data, HOUR_IN_SECONDS );
 		}
 
 		if ( isset( $github_plugin_data['tag_name'] ) ) {
@@ -121,7 +129,6 @@ class FlashBackup_Updater {
 		}
 
 		return $github_plugin_data;
-
 	}
 
 	/**
@@ -132,11 +139,6 @@ class FlashBackup_Updater {
 	 * @param object             $args   Plugin API arguments.
 	 */
 	public function get_update_details( $result, $action, $args ) {
-
-		// Skip when $result is false.
-		if ( false === $result ){
-			return $result;
-		}
 
 		// Run only for the right action and our plugin slug.
 		if ( $args->slug !== $this->slug || 'plugin_information' !== $action ) {
@@ -270,5 +272,4 @@ class FlashBackup_Updater {
 
 		return $source;
 	}
-
 }
